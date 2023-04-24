@@ -15,11 +15,11 @@ export default async function (req, res) {
     return;
   }
 
-  const animal = req.body.animal || '';
-  if (animal.trim().length === 0) {
+  const book = req.body.book || '';
+  if (book.trim().length === 0) {
     res.status(400).json({
       error: {
-        message: "Please enter a valid animal",
+        message: "Enter A Book Below",
       }
     });
     return;
@@ -28,8 +28,9 @@ export default async function (req, res) {
   try {
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: generatePrompt(animal),
-      temperature: 0.6,
+      prompt: generatePrompt(book),
+      max_tokens: 1000,
+      temperature: 1,
     });
     res.status(200).json({ result: completion.data.choices[0].text });
   } catch(error) {
@@ -48,15 +49,21 @@ export default async function (req, res) {
   }
 }
 
-function generatePrompt(animal) {
-  const capitalizedAnimal =
-    animal[0].toUpperCase() + animal.slice(1).toLowerCase();
-  return `Suggest three names for an animal that is a superhero.
+function generatePrompt(book) {
+  const capitalizedbook =
+    book[0].toUpperCase() + book.slice(1).toLowerCase();
+  return `Respond with 3 book suggestions with different authors that are similar to a book the user gives
 
-Animal: Cat
-Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
-Animal: Dog
-Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
-Animal: ${capitalizedAnimal}
+Book: The Alchemist by Paulo Coelho
+  Suggestions: 
+  1. Siddhartha by Herman Hesse
+  2. The Little Prince by Antoine de Saint-Exupéry
+  3. The Kite Runner by Khaled Hosseini
+Book: The Hundred-Year-Old Man Who Climbed Out the Window and Disappeared by Jonas Jonasson
+  Suggestions: 
+  1. The Rosie Project by Graeme Simsion
+  2. The Curious Incident of the Dog in the Night-Time by Mark Haddon
+  3. The Little Old Lady Who Broke All the Rules by Catharina Ingelman-Sundberg
+Suggestions: ${capitalizedbook}
 Names:`;
 }
